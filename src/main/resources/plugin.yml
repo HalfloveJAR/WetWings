@@ -1,0 +1,13 @@
+name: WetWings
+version: '${version}'
+main: net.halflove.wetWings.Main
+api-version: '26.1'
+authors: [ Halflove ]
+description: A plugin that disables elytra when wet.
+website: www.halflove.net
+softdepend: [PlaceholderAPI]
+
+commands:
+  wetwings:
+    usage: /wetwings
+    description: Check plugin information.
