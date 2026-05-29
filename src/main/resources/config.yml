@@ -1,0 +1,13 @@
+# The actionbar message displayed when the player tries to fly with heavy wings
+activation-actionbar: "&3Your wings are waterlogged and too heavy to fly"
+
+# What does a player need to touch for their wings to become wet? (Both default true)
+triggers:
+  rain: true
+  water: true
+
+# How far must the player breach/jump out of water in order for their wings to dry off? (Default: 2)
+water-breach-distance: 2
+
+# Should the player be given slow falling when their wings are disabled? (Default: true)
+slowfall-when-deactivated: true

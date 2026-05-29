@@ -10,4 +10,5 @@ softdepend: [PlaceholderAPI]
 commands:
   wetwings:
     usage: /wetwings
+    aliases: [ ww ]
     description: Check plugin information.

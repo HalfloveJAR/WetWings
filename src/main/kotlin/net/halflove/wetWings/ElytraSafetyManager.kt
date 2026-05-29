@@ -15,9 +15,10 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.UUID
 
-object ElytraSafetyManager : Listener {
+class ElytraSafetyManager(main: Main) : Listener {
 
-    private val activeSlowFallPlayers = mutableSetOf<UUID>()
+    private val plugin = main
+    val activeSlowFallPlayers = mutableSetOf<UUID>()
 
     @EventHandler
     fun onElytraToggle(event: EntityToggleGlideEvent) {
@@ -73,12 +74,26 @@ object ElytraSafetyManager : Listener {
         activeSlowFallPlayers.remove(event.player.uniqueId)
     }
 
+    // If the server reboots or the player disconnects before we can take away their
+    // slow falling effect, this will remove it forcefully when they log back in.
+    @EventHandler
+    fun onPlayerJoin(event: org.bukkit.event.player.PlayerJoinEvent) {
+        val player = event.player
+        val effect = player.getPotionEffect(PotionEffectType.SLOW_FALLING)
+
+        // When we apply slow falling, we set it to have no particles
+        if (effect != null && !effect.hasParticles()) {
+            player.removePotionEffect(PotionEffectType.SLOW_FALLING)
+        }
+    }
+
     private fun applySafetySlowFalling(player: Player) {
+        if (!plugin.config.getBoolean("slowfall-when-deactivated", true)) return
         if (isServerSideOnGround(player)) return
 
         val slowFallingEffect = PotionEffect(
             PotionEffectType.SLOW_FALLING,
-            Int.MAX_VALUE,
+            -1,
             0,
             false,
             false,
@@ -88,13 +103,17 @@ object ElytraSafetyManager : Listener {
         activeSlowFallPlayers.add(player.uniqueId)
     }
 
-    private fun removeSafetySlowFalling(player: Player) {
+    fun removeSafetySlowFalling(player: Player) {
         player.removePotionEffect(PotionEffectType.SLOW_FALLING)
         activeSlowFallPlayers.remove(player.uniqueId)
     }
 
     private fun isWet(player: Player): Boolean {
-        if (player.isInWater) return true
+        val waterTriggerEnabled = plugin.config.getBoolean("triggers.water", true)
+        if (waterTriggerEnabled && player.isInWater) return true
+
+        // If rain triggers are disabled we don't need to do any more checks
+        if (!plugin.config.getBoolean("triggers.rain", true)) return false
 
         val world = player.world
         if (!world.hasStorm()) return false
@@ -107,8 +126,9 @@ object ElytraSafetyManager : Listener {
 
     private fun isBreachingWater(player: Player): Boolean {
         val location = player.location
+        val breachDistance = plugin.config.getInt("water-breach-distance", 2)
 
-        for (i in 1..2) {
+        for (i in 1..breachDistance) {
             val blockBelow = location.clone().subtract(0.0, i.toDouble(), 0.0).block
             if (blockBelow.type == org.bukkit.Material.WATER) {
                 return true
@@ -143,7 +163,7 @@ object ElytraSafetyManager : Listener {
     private fun sendWaterloggedMessage(player: Player) {
         player.spigot().sendMessage(
             ChatMessageType.ACTION_BAR,
-            TextComponent(ChatColor.translateAlternateColorCodes('&', "&3Your wings are waterlogged and too heavy to fly"))
+            TextComponent(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("activation-actionbar") ?: "&3Your wings are waterlogged and too heavy to fly"))
         )
     }
 }
