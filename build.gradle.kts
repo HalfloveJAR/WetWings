@@ -22,12 +22,6 @@ dependencies {
     // Kotlin (Compile / Implementation)
     implementation(kotlin("stdlib-jdk8"))
     testImplementation(kotlin("test"))
-
-    // Database & ORM (Compile / Implementation)
-    implementation("com.j256.ormlite:ormlite-jdbc:6.1")
-    implementation("com.j256.ormlite:ormlite-core:6.1")
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("com.h2database:h2:2.2.224")
 }
 
 kotlin {
@@ -49,7 +43,7 @@ tasks {
     }
 
     shadowJar {
-        archiveClassifier.set("shaded")
+        archiveFileName.set("WetWings-v${project.version}.jar")
     }
 
     runServer {

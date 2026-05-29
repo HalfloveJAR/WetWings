@@ -161,9 +161,10 @@ class ElytraSafetyManager(main: Main) : Listener {
     }
 
     private fun sendWaterloggedMessage(player: Player) {
+        val message = Utils.translateColorCodes(plugin.config.getString("activation-actionbar") ?: "&3Your wings are waterlogged and too heavy to fly")
         player.spigot().sendMessage(
             ChatMessageType.ACTION_BAR,
-            TextComponent(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("activation-actionbar") ?: "&3Your wings are waterlogged and too heavy to fly"))
+            TextComponent(ChatColor.translateAlternateColorCodes('&', message))
         )
     }
 }
